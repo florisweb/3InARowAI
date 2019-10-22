@@ -20,17 +20,7 @@ const Game = new function() {
 
 
 function BoardConstructor() {
-  const Board = [];
-
-  for (let x = 0; x < 5; x++)
-  {
-    Board[x] = [];
-    for (let y = 0; y < 5; y++)
-    {
-      Board[x][y] = .5;
-    }
-  }
-
+  const Board = createArray(5, 5, .5);
 
   Board.placeStone = function(_x, _team = 0) {
     let yIndex = getHighestStoneByRow(Board[_x]);
@@ -70,11 +60,31 @@ function BoardConstructor() {
     return inARows;
   }
 
+  Board.getInARow = getInARow;
   function getInARow(_board, _x, _y) {
+    
+    
 
+    let lines = [];
+    recurse(_board, _x, _y);
 
+    return lines;
 
+    function recurse(_board, _x, _y, _dir, _step = 1) {
+
+      console.log(_x, _y, _dir, _step);
+      if (_step > 2) lines.push({x: _x, y: _y, dir: _dir});
+      let neighbours = getOwnTypeNeighbours(_board, _x, _y);
+      for (neighbour of neighbours)
+      {
+        let dir = dirFromDxDy(neighbour.x - _x, neighbour.y - _y);
+        if (_dir && _dir != dir) continue;
+        recurse(_board, neighbour.x, neighbour.y, dir, _step + 1);
+      }
+    }
   }
+
+
 
   Board.getOwnTypeNeighbours = getOwnTypeNeighbours;
 
@@ -102,10 +112,48 @@ function BoardConstructor() {
   }
 
 
-
-
   return Board;
 }
 
 
+
+
+Game.board.placeStone(0, 1);
+Game.board.placeStone(0, 1);
+Game.board.placeStone(2, 1);
+Game.board.placeStone(1, 1);
+Game.board.placeStone(1, 1);
+Game.board.placeStone(2, 1);
+Game.board.placeStone(2, 1);
+Drawer.drawBoard(Game.board);
+
+
+
+function createArray(_width, _height, _value) {
+  let arr = [];
+  for (let x = 0; x < _width; x++)
+  {
+    arr[x] = [];
+    for (let y = 0; y < _height; y++)
+    {
+      arr[x][y] = _value;
+    }
+  }
+
+  return arr;
+}
+
+
+
+function dirFromDxDy(_dx, _dy) {
+  if (_dx == -1 && _dy == -1) return 1;
+  if (_dx == 0 && _dy == -1)  return 2;
+  if (_dx == 1 && _dy == -1)  return 3;
+  if (_dx == 1 && _dy == 0)   return 4;
+  if (_dx == 1 && _dy == 1)   return 5;
+  if (_dx == 0 && _dy == 1)   return 6;
+  if (_dx == -1 && _dy == 1)  return 7;
+  if (_dx == -1 && _dy == 0)  return 8;
+  return false;
+}
 
