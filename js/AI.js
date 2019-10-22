@@ -5,58 +5,76 @@
 
 const Trainer = new function () {
 	const This = {
-		AI1: false,
-		AI2: false,
-		nextMove: nextMove
+		nextMove: nextMove,
+		compareAIs: compareAIs,
+		createRandomAI: createRandomAI,
+		createRandomAIs: createRandomAIs,
+		compareAIList: compareAIList,
 	}
 
-	This.AI1 = createRandomAI();
-	This.AI2 = createRandomAI();
+	
+	function createRandomAIs(_amount = 100) {
+		let AIs = [];
+		for (let i = 0; i < _amount; i++) AIs.push(createRandomAI());
+		return AIs;
+	}
+
+
+	
+	function compareAIList(_list) {
+		let list = shuffle(_list);
+		let newList = [];
+		for (let i = 0; i < list.length; i += 2)
+		{
+			if (!list[i + 1]) continue;
+			let winner = compareAIs(list[i], list[i + 1]);
+			newList.push(winner);
+			newList.push(winner.reproduce());
+		}
+		return newList;
+	}
+
+
+
+
+	
+
+	let AI1;
+	let AI2;
+
+	let comparing = false;
+	function compareAIs(_AI1, _AI2) {
+		Game.reset();
+		comparing = true;
+		AI1 = _AI1;
+		AI2 = _AI2;
+
+
+		recurse();
+		function recurse() {
+			nextMove();
+			if (comparing) recurse();
+		}
+
+		let score = Game.board.calcScore();
+		if (score.scoreA > score.scoreB) return _AI1;
+		return _AI2;
+	}
 
 
 
 
 	function nextMove() {
-		let outputs = [];
+		let gameEnded = false;
 		switch (Game.turn)
 		{
-			case 0: outputs = This.AI1.calcMove(Game.board); break;
-			default: outputs = This.AI2.calcMove(Game.board); break;
+			case 0: gameEnded = AI1.move(Game.board); break;
+			default: gameEnded = AI2.move(Game.board); break;
 		}
-		console.log(outputs);
-		applyOutputs(outputs);
-		Drawer.drawBoard(Game.board);
+
+		if (Game.turn == 0) Game.turn = 1; else Game.turn = 0;
+		if (gameEnded) comparing = false;
 	}
-	
-	function applyOutputs(_outputs) {
-		let tagedArr = [];
-		for (let i = 0; i < _outputs.length; i++)
-		{
-			tagedArr.push({val: _outputs[i], index: i});
-		}
-
-
-		tagedArr.sort(function (a, b) {
-			if (a.val < b.val) return 1;
-			return -1;
-		});
-		
-		let validMove = false;
-		while (!validMove)
-		{
-			if (tagedArr.length == 0)
-			{
-				console.warn("No possible moves anymore");
-				break
-			}
-
-			let stoneIndex = tagedArr[0].index;
-			tagedArr.splice(0, 1);
-			validMove = Game.board.placeStone(stoneIndex, Game.turn);
-		}
-	}
-
-
 
 
 
@@ -101,18 +119,64 @@ const Trainer = new function () {
 function AIConstructor(_brainDNA) {
 	const This = {
 		DNA: _brainDNA,
-		calcMove: calcMove,
+		move: move,
+		reproduce: reproduce,
 	}
+	
 	This.brain = createBrain(_brainDNA)
-
 	return This;
 
 
-	function calcMove(_board) {
-		let inputs = TwoDArrTo1D(_board);
-		let outputs = This.brain.feedForward(inputs);
-		return outputs;
+	function reproduce() {
+		const mutationRate = .1;
+		const mutationChance = .1;
+		let newDNA = Object.assign([], This.DNA);
+
+		for (let i = 0; i < newDNA.length; i++) 
+		{
+			if (Math.random() > mutationChance) continue;
+			newDNA[i] += mutationRate - 2 * mutationRate * Math.random();
+		}
+
+		return new AIConstructor(newDNA);
 	}
+
+
+	function move(_board) {
+		let inputs = TwoDArrTo1D(_board);
+		let outputs = This.brain.feedForward(inputs);	
+		
+		let ended = applyOutputs(outputs);
+		Drawer.drawBoard(Game.board);
+		return ended;
+	}
+	
+
+	function applyOutputs(_outputs) {
+		let tagedArr = [];
+		for (let i = 0; i < _outputs.length; i++)
+		{
+			tagedArr.push({val: _outputs[i], index: i});
+		}
+
+
+		tagedArr.sort(function (a, b) {
+			if (a.val < b.val) return 1;
+			return -1;
+		});
+		
+		let validMove = false;
+		while (!validMove)
+		{
+			if (tagedArr.length == 0) return true;
+		
+			let stoneIndex = tagedArr[0].index;
+			tagedArr.splice(0, 1);
+			validMove = Game.board.placeStone(stoneIndex, Game.turn);
+		}
+		return false;
+	}
+
 
 
 

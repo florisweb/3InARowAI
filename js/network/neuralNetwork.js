@@ -6,12 +6,13 @@
 function NeuralNetwork(_structure) {
 	let This = {
 		layers: [],
-		feedForward: feedForward
+		feedForward: feedForward,
 	}
 
 	createLayersByStructure(_structure);
 
 	return This;
+
 
 
 

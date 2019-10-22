@@ -10,6 +10,11 @@ const Game = new function() {
   const This = {
     board: BoardConstructor(),
     turn: 0,
+    reset: resetGame
+  }
+
+  function resetGame() {
+    This.board = BoardConstructor();
   }
 
 
@@ -137,19 +142,6 @@ function BoardConstructor() {
 
 
 
-
-Game.board.placeStone(0, 1);
-Game.board.placeStone(0, 1);
-Game.board.placeStone(2, 1);
-Game.board.placeStone(1, 1);
-Game.board.placeStone(1, 1);
-Game.board.placeStone(2, 1);
-Game.board.placeStone(2, 1);
-Game.board.placeStone(2, 1);
-Game.board.placeStone(2, 1);
-Game.board.placeStone(3, 0);
-Game.board.placeStone(3, 0);
-Game.board.placeStone(3, 0);
 Drawer.drawBoard(Game.board);
 
 
