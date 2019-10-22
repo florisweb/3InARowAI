@@ -34,9 +34,25 @@ const Drawer = new function() {
     ctx.beginPath();
     ctx.strokeRect(_x * tileSize, _y * tileSize, tileSize, tileSize);
     ctx.closePath();
-    ctx.fill();
+    ctx.stroke();
 
-    if (_team != .5) ctx.fillText(_team, _x * tileSize + tileSize / 2, _y * tileSize + tileSize / 2);
+    if (_team == NoTeam) return;
+    
+
+    
+    ctx.fillStyle = "rgba(0, 0, 255 , .1)";
+    if (_team == TeamA) ctx.fillStyle = "rgba(255, 0, 0, .1)";
+    ctx.beginPath();
+    ctx.fillRect(_x * tileSize, _y * tileSize, tileSize, tileSize);
+    ctx.closePath();
+    ctx.fill();
+      
+
+    ctx.fillStyle = "#000";
+    ctx.beginPath();
+    ctx.fillText(_team, _x * tileSize + tileSize / 2, _y * tileSize + tileSize / 2);
+    ctx.closePath();
+    ctx.fill();
   }
 
 

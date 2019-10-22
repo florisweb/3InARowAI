@@ -23,14 +23,31 @@ const Trainer = new function () {
 	
 	function compareAIList(_list) {
 		let list = shuffle(_list);
-		let newList = [];
+		let results = [];
 		for (let i = 0; i < list.length; i += 2)
 		{
 			if (!list[i + 1]) continue;
-			let winner = compareAIs(list[i], list[i + 1]);
-			newList.push(winner);
-			newList.push(winner.reproduce());
+			results = results.concat(compareAIs(list[i], list[i + 1]));
 		}
+
+		results.sort(function (a, b) {
+			if (a.score < b.score) return 1;
+			return -1;
+		});
+		
+		results.splice(Math.round(results.length / 2), results.length / 2);
+
+		let newList = [];
+		let totalScore = 0;
+		for (AI of results)
+		{
+			newList.push(AI);
+			totalScore += AI.score;
+			newList.push(AI.reproduce());
+		}
+
+		averageScoreHolder.innerHTML = "Average score: " + totalScore / (newList.length / 2) + "<br>Round: " + round;
+
 		return newList;
 	}
 
@@ -42,29 +59,28 @@ const Trainer = new function () {
 	let AI1;
 	let AI2;
 
-	let comparing = false;
 	function compareAIs(_AI1, _AI2) {
 		Game.reset();
-		comparing = true;
 		AI1 = _AI1;
 		AI2 = _AI2;
 
 
 		recurse();
 		function recurse() {
-			nextMove();
-			if (comparing) recurse();
+			if (!nextMove(false)) recurse();
 		}
 
 		let score = Game.board.calcScore();
-		if (score.scoreA > score.scoreB) return _AI1;
-		return _AI2;
+		_AI1.score = score.scoreA - score.scoreB;
+		_AI2.score = score.scoreB - score.scoreA;
+
+		return [_AI1, _AI2];
 	}
 
 
 
 
-	function nextMove() {
+	function nextMove(_drawBoard = false) {
 		let gameEnded = false;
 		switch (Game.turn)
 		{
@@ -72,8 +88,9 @@ const Trainer = new function () {
 			default: gameEnded = AI2.move(Game.board); break;
 		}
 
-		if (Game.turn == 0) Game.turn = 1; else Game.turn = 0;
-		if (gameEnded) comparing = false;
+		if (_drawBoard) Drawer.drawBoard(Game.board);
+		if (Game.turn == TeamA) Game.turn = TeamB; else Game.turn = TeamA;
+		return gameEnded;
 	}
 
 
@@ -85,7 +102,7 @@ const Trainer = new function () {
 
 	function createRandomAI() {
 		return createAI(
-			[Math.random() * 5, Math.random() * 10, Math.random() * 10, Math.random() * 10, Math.random() * 10]
+			[3, 10, 10, 10]
 		);
 	}
 	
@@ -129,10 +146,10 @@ function AIConstructor(_brainDNA) {
 
 	function reproduce() {
 		const mutationRate = .1;
-		const mutationChance = .1;
+		const mutationChance = .5;
 		let newDNA = Object.assign([], This.DNA);
 
-		for (let i = 0; i < newDNA.length; i++) 
+		for (let i = 3; i < newDNA.length; i++) 
 		{
 			if (Math.random() > mutationChance) continue;
 			newDNA[i] += mutationRate - 2 * mutationRate * Math.random();
@@ -147,7 +164,6 @@ function AIConstructor(_brainDNA) {
 		let outputs = This.brain.feedForward(inputs);	
 		
 		let ended = applyOutputs(outputs);
-		Drawer.drawBoard(Game.board);
 		return ended;
 	}
 	

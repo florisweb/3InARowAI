@@ -12,7 +12,11 @@
 	<body>
 
 		<canvas id="gameCanvas" width="250" height="250"></canvas>
-
+		<br>
+		<a id="averageScoreHolder"></a>
+		<br>
+		<button onclick="running = true; run()">Run</button>
+		<button onclick="running = false;">Stop</button>
 
 
 		<script src="js/extraFunctions.js"></script>

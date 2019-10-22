@@ -1,4 +1,6 @@
-
+const NoTeam = .5;
+const TeamA = -5;
+const TeamB = 5;
 
 
 // 0 = Player A
@@ -25,7 +27,7 @@ const Game = new function() {
 
 
 function BoardConstructor() {
-  const Board = createArray(5, 5, .5);
+  const Board = createArray(5, 5, NoTeam);
 
   Board.placeStone = function(_x, _team = 0) {
     let yIndex = getHighestStoneByRow(Board[_x]);
@@ -40,7 +42,7 @@ function BoardConstructor() {
     let index = _row.length;
     for (let y = _row.length - 1; y >= 0; y--)
     {
-      if (_row[y] == .5) continue;
+      if (_row[y] == NoTeam) continue;
       if (index < y) continue;
       index = y;
     }
@@ -117,7 +119,7 @@ function BoardConstructor() {
     let neighbours = [];
     let type = _board[_x][_y];
     
-    if (type == .5) return neighbours;
+    if (type == NoTeam) return neighbours;
 
 
     if (_x > 0 && _board[_x - 1][_y] == type)                                                     neighbours.push({x: _x - 1, y: _y});
@@ -142,7 +144,21 @@ function BoardConstructor() {
 
 
 
+
 Drawer.drawBoard(Game.board);
+let list = Trainer.createRandomAIs(100)
+
+let running = true;
+let round = 0;
+function run() {round++; list = Trainer.compareAIList(list); if (running) setTimeout(run, 1);} run();
+
+
+
+
+
+
+
+
 
 
 
