@@ -8,14 +8,14 @@
 
 const Game = new function() {
   const This = {
-    board: BoardConstructor()
+    board: BoardConstructor(),
+    turn: 0,
   }
 
 
 
   return This;
 }
-
 
 
 
@@ -44,36 +44,59 @@ function BoardConstructor() {
 
 
 
+  Board.calcScore = function() {
+    const rows = getAllRows(Board);
+    let scoreA = 0;
+    let scoreB = 0;
+    for (row of rows) 
+    {
+      switch (row.type)
+      {
+        case 1: scoreA++; break;
+        default: scoreB++; break;
+      }
+    }
+    return {scoreA: scoreA, scoreB: scoreB}
+  }
 
 
-  Board.getThreeInARows = getThreeInARows;
-  function getThreeInARows(_board) {
+  function getAllRows(_board) {
     let inARows = [];
     for (let x = 0; x < _board.length; x++) 
     {
       for (let y = 0; y < _board[x].length; y++) 
       {
-        console.log(_board[x][y], getInARow(_board, x, y));
+        let rows = getRowsFromTile(_board, x, y);
+
+        for (row of rows) 
+        {
+          let found = false;
+          for (existsRow of inARows)
+          {
+            if (
+              row.sx == existsRow.ex && 
+              row.sy == existsRow.ey && 
+              row.ex == existsRow.sx &&
+              row.ey == existsRow.sy
+            ) found = true;
+          }
+          if (found) continue;
+          inARows.push(row);
+        }
       }
     }
 
     return inARows;
   }
 
-  Board.getInARow = getInARow;
-  function getInARow(_board, _x, _y) {
-    
-    
-
+  function getRowsFromTile(_board, _startX, _startY) {
     let lines = [];
-    recurse(_board, _x, _y);
+    recurse(_board, _startX, _startY);
 
     return lines;
 
     function recurse(_board, _x, _y, _dir, _step = 1) {
-
-      console.log(_x, _y, _dir, _step);
-      if (_step > 2) lines.push({x: _x, y: _y, dir: _dir});
+      if (_step == 3) lines.push({sx: _startX, sy: _startY, ex: _x, ey: _y, type: _board[_startX][_startY]});
       let neighbours = getOwnTypeNeighbours(_board, _x, _y);
       for (neighbour of neighbours)
       {
@@ -84,9 +107,6 @@ function BoardConstructor() {
     }
   }
 
-
-
-  Board.getOwnTypeNeighbours = getOwnTypeNeighbours;
 
   function getOwnTypeNeighbours(_board, _x, _y) {
     let neighbours = [];
@@ -125,6 +145,11 @@ Game.board.placeStone(1, 1);
 Game.board.placeStone(1, 1);
 Game.board.placeStone(2, 1);
 Game.board.placeStone(2, 1);
+Game.board.placeStone(2, 1);
+Game.board.placeStone(2, 1);
+Game.board.placeStone(3, 0);
+Game.board.placeStone(3, 0);
+Game.board.placeStone(3, 0);
 Drawer.drawBoard(Game.board);
 
 

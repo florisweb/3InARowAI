@@ -2,31 +2,11 @@
 
 
 
-const Neural = new function() {
 
-
-	let This = {
-
-	}
-
-	return This;
-
-
-
-}
-
-/*
-STRUCTURE:
-[
-	layer 1 length,
-	layer 2 length
-]
-*/
-
-function _Neural_network(_structure) {
+function NeuralNetwork(_structure) {
 	let This = {
 		layers: [],
-
+		feedForward: feedForward
 	}
 
 	createLayersByStructure(_structure);
@@ -68,62 +48,32 @@ function _Neural_network(_structure) {
 		for (let i = 0; i < _arrLength; i++) arr.push(1 - Math.random() * 2);
 		return arr;
 	}
-}
 
 
 
+	function feedForward(_input) {
+		This.layers[0].a = copyArr(_input).splice(0, This.layers[0].a.length);
+		for (let l = 1; l < This.layers.length; l++) This.layers[l].a = calcActivationsByLayer(l);	
+		return This.layers[This.layers.length - 1].a;
 
-let layers = [
-	{//input layer
-		a: [0, 0],
-	},
-	{
-		a: [0, 0, 0],
-		b: [1 - Math.random() * 2, 1 - Math.random() * 2, 1 - Math.random() * 2],
-		w: [
-			[1 - Math.random() * 2, 1 - Math.random() * 2],
-			[1 - Math.random() * 2, 1 - Math.random() * 2],
-			[1 - Math.random() * 2, 1 - Math.random() * 2]
-		]
-	},
-	{
-		a: [0],
-		b: [1 - Math.random() * 2],
-		w: [
-			[1 - Math.random() * 2, 1 - Math.random() * 2, 1 - Math.random() * 2],
-		]
-	}
-]
-
-
-
-
-
-
-
-
-
-function feedForward(_input) {
-	layers[0].a = copyArr(_input).splice(0, layers[0].a.length);
-	for (let l = 1; l < layers.length; l++)	layers[l].a = calcActivationsByLayer(l);	
-	return layers[layers.length - 1].a;
-
-	function calcActivationsByLayer(L) {
-		let activations = [];
-		for (let neuron = 0; neuron < layers[L].a.length; neuron++)
-		{
-			let sum = layers[L].b[neuron];
-			for (let w = 0; w < layers[L - 1].a.length; w++)
+		function calcActivationsByLayer(L) {
+			let activations = [];
+			for (let neuron = 0; neuron < This.layers[L].a.length; neuron++)
 			{
-				sum += layers[L - 1].a[w] * layers[L].w[neuron][w];
+				let sum = This.layers[L].b[neuron];
+				for (let w = 0; w < This.layers[L - 1].a.length; w++)
+				{
+					sum += This.layers[L - 1].a[w] * This.layers[L].w[neuron][w];
+				}
+
+				activations[neuron] = sigmoid(sum);
 			}
 
-			activations[neuron] = sigmoid(sum);
+			return activations;
 		}
-
-		return activations;
 	}
 }
+
 
 
 function copyArr(_arr) {
@@ -134,34 +84,11 @@ function sigmoid(t) {
     return 1 / (1 + Math.pow(Math.E, -t));
 }
 
-function dsigmoid(t) {
-	return sigmoid(t) * (1 - sigmoid(t));
-}
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+function createArrayWithValues(_length, _value) {
+	let arr = [];
+	for (let i = 0; i < _length; i++) arr.push(_value);
+	return arr;
+}	
 

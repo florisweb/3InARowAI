@@ -177,3 +177,14 @@ function stringToColour(_str) {
 	}
 
 
+
+
+
+function TwoDArrTo1D(_2dArr) {
+	let newArr = [];
+	for (arr of _2dArr) newArr = newArr.concat(arr);
+	return newArr;
+}
+
+
+
